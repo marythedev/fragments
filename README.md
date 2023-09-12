@@ -44,5 +44,5 @@ Terminal (the last one will provide a more readable response):
 curl.exe http://localhost:8080
 ```
 ```
-curl -s localhost:8080 | jq
+curl.exe -s localhost:8080 | jq
 ```
