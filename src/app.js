@@ -2,9 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const passport = require('passport');
 
 const logger = require('./logger');
 const pino = require('pino-http')({ logger });
+const authenticate = require('./auth');
 
 const app = express();
 
@@ -12,6 +14,9 @@ app.use(pino); //logging middleware
 app.use(helmet()); //security middleware
 app.use(cors()); //access control middleware
 app.use(compression()); //optimization middleware
+
+passport.use(authenticate.strategy());
+app.use(passport.initialize()); //passport authentication middleware
 
 // Define our routes
 app.use('/', require('./routes'));

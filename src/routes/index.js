@@ -1,9 +1,10 @@
 const express = require('express');
 const { version, author } = require('../../package.json');
+const { authenticate } = require('../auth');
 const router = express.Router();
 
 //Expose all of API routes on /v1/* to include an API version.
-router.use(`/v1`, require('./api'));
+router.use(`/v1`, authenticate(), require('./api'));
 
 //health check route
 router.get('/', (req, res) => {
