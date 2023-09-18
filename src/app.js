@@ -3,7 +3,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 
-const { author, version } = require('../package.json');
 const logger = require('./logger');
 const pino = require('pino-http')({ logger });
 
@@ -14,19 +13,8 @@ app.use(helmet()); //security middleware
 app.use(cors()); //access control middleware
 app.use(compression()); //optimization middleware
 
-//health check route
-app.get('/', (req, res) => {
-  //makes sure the response isn't cached
-  //https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#controlling_caching
-  res.setHeader('Cache-Control', 'no-cache');
-
-  res.status(200).json({
-    status: 'ok',
-    author,
-    githubUrl: 'https://github.com/marythedev/fragments',
-    version,
-  });
-});
+// Define our routes
+app.use('/', require('./routes'));
 
 //Resources Not Found - 404 middleware
 app.use((req, res) => {
