@@ -7,6 +7,7 @@ const passport = require('passport');
 const logger = require('./logger');
 const pino = require('pino-http')({ logger });
 const authenticate = require('./auth');
+const { createErrorResponse } = require('./response');
 
 const app = express();
 
@@ -23,13 +24,7 @@ app.use('/', require('./routes'));
 
 //Resources Not Found - 404 middleware
 app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    error: {
-      message: 'Not Found',
-      code: 404,
-    },
-  });
+  res.status(404).json(createErrorResponse(404, 'Not Found'));
 });
 
 //Error-handling middleware to deal with anything else

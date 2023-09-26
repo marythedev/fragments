@@ -1,6 +1,7 @@
 const express = require('express');
 const { version, author } = require('../../package.json');
 const { authenticate } = require('../auth');
+const { createSuccessResponse } = require('../response');
 const router = express.Router();
 
 //Expose all of API routes on /v1/* to include an API version.
@@ -12,12 +13,13 @@ router.get('/', (req, res) => {
   //https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching#controlling_caching
   res.setHeader('Cache-Control', 'no-cache');
 
-  res.status(200).json({
-    status: 'ok',
+  let data = {
     author,
     githubUrl: 'https://github.com/marythedev/fragments',
     version,
-  });
+  };
+
+  res.status(200).json(createSuccessResponse(data));
 });
 
 module.exports = router;
