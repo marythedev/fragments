@@ -46,3 +46,38 @@ curl.exe http://localhost:8080
 ```
 curl.exe -s localhost:8080 | jq
 ```
+
+
+EC2 Environment
+-
+CentOS
+- Update system's packages with `sudo yum update`
+- Install package (git as the example) `sudo yum install git -y`
+- Check package version (git as the example) `git --version`
+- Switch between node versions `nvm use --lts` or `nvm use 16`(version 16 is installed)
+
+Connect with PuTTY
+1. Session -> Host Name set to `Public IPv4 address` (something like 54.165.10.190), check port to be `22`
+2. Connection -> Seconds between keepalives set to `30`
+3. Connection -> SSH -> Auth -> Credentials -> Private key file for authentication select file `dps955-key-pair.ppk` (in fragments/.ssh folder)
+4. Login as `ec2-user`
+
+Copy source code from local machine to EC2
+1. Run `npm pack`
+2. Run `pscp -v -i .ssh/dps955-key-pair.ppk fragments-0.0.1.tgz ec2-user@ec2-54-165-10-190.compute-1.amazonaws.com:`
+
+   `-v` for verbose (to give detailed explanation, especially if something goes wrong)
+   
+   `-i .ssh/dps955-key-pair.ppk` key-pairs for connection
+
+   `fragments-0.0.1.tgz` update with newer version if applicable
+   
+   `ec2-user` username (without it automatically guesses username & refuses key)
+
+   `ec2-54-165-10-190.compute-1.amazonaws.com` example of remote computer address (check Public IPv4 DNS)
+
+   `-P 22` if some [errors](https://stackoverflow.com/questions/62817854/ssh-init-network-error-cannot-assign-requested-address) still arise add this flag to force it connect on port 22
+
+Start & Stop EC2 instances from AWS command line:
+- Start with `aws ec2 start-instances --instance-ids {instance-id}`
+- Stop with `aws ec2 stop-instances --instance-ids {instance-id}`
