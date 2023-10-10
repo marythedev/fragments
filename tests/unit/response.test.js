@@ -24,7 +24,7 @@ describe('API Responses', () => {
     });
   });
 
-  // Write a test for calling createSuccessResponse() with an argument
+  // test for calling createSuccessResponse() with an argument
   test('createSuccessResponse(data)', () => {
     // Data argument included
     const data = { a: 1, b: 2 };
