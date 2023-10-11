@@ -1,11 +1,13 @@
 const { createSuccessResponse } = require('../../response');
+const { listFragments } = require('../../model/data/memory/memory');
 
 // Gets a list of fragments for the current user
-module.exports = (req, res) => {
-  // TODO: this is not properly implemented for now (gives a blank list)
+module.exports = async (req, res) => {
+  const ownerId = req.user;
+  const fragments = await listFragments(ownerId, true);
 
   let data = {
-    fragments: [],
+    fragments: fragments
   };
 
   res.status(200).json(createSuccessResponse(data));
