@@ -4,7 +4,7 @@ const { listFragments } = require('../../model/data/memory/memory');
 // Gets a list of fragments for the current user
 module.exports = async (req, res) => {
   const ownerId = req.user;
-  const fragments = await listFragments(ownerId, true);
+  const fragments = await listFragments(ownerId);
 
   let data = {
     fragments: fragments

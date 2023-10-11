@@ -18,5 +18,15 @@ describe('GET /v1/fragments', () => {
     expect(Array.isArray(res.body.fragments)).toBe(true);
   });
 
-  // TODO: we'll need to add tests to check the contents of the fragments array later
+  // tests to check the contents of the fragments array
+  test('authenticated user can see created text/plain fragments\' ids', async () => {
+    const post_res = await request(app).post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+      .send("This is a fragment");
+
+    const get_res = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
+
+    expect(get_res.body.fragments[0]).toBe(post_res.body.fragment.id);
+  });
 });
