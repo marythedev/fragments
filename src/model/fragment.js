@@ -16,6 +16,8 @@ const {
 
 const formats = [
   'text/plain',
+  /* Formats are not supported yet:
+
   'text/markdown',
   'text/html',
   'application/json',
@@ -23,6 +25,8 @@ const formats = [
   'image/jpeg',
   'image/webp',
   'image/gif'
+
+  */
 ];
 
 class Fragment {
@@ -146,6 +150,8 @@ class Fragment {
 
     if (this.mimeType == 'text/plain')
       formats = ['text/plain'];
+    /* Formats are not supported yet:
+
     else if (this.mimeType == 'text/markdown')
       formats = ['text/markdown', 'text/html', 'text/plain'];
     else if (this.mimeType == 'text/html')
@@ -160,6 +166,8 @@ class Fragment {
       formats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
     else if (this.mimeType == 'image/gif')
       formats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    
+    */
 
     return formats;
   }
