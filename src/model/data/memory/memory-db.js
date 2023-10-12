@@ -1,3 +1,5 @@
+const logger = require('../../../logger');
+
 const validateKey = (key) => typeof key === 'string';
 
 class MemoryDB {
@@ -14,6 +16,8 @@ class MemoryDB {
    */
   get(primaryKey, secondaryKey) {
     if (!(validateKey(primaryKey) && validateKey(secondaryKey))) {
+      logger.error("Cannot get from memory database without primaryKey and/or secondaryKey of type string");
+      logger.debug(`given primaryKey: ${primaryKey}, secondaryKey: ${secondaryKey}`);
       throw new Error(
         `primaryKey and secondaryKey strings are required, got primaryKey=${primaryKey}, secondaryKey=${secondaryKey}`
       );
@@ -32,6 +36,8 @@ class MemoryDB {
    */
   put(primaryKey, secondaryKey, value) {
     if (!(validateKey(primaryKey) && validateKey(secondaryKey))) {
+      logger.error("Cannot push to memory database without primaryKey and/or secondaryKey of type string");
+      logger.debug(`given primaryKey: ${primaryKey}, secondaryKey: ${secondaryKey}`);
       throw new Error(
         `primaryKey and secondaryKey strings are required, got primaryKey=${primaryKey}, secondaryKey=${secondaryKey}`
       );
@@ -53,6 +59,8 @@ class MemoryDB {
    */
   query(primaryKey) {
     if (!validateKey(primaryKey)) {
+      logger.error("Cannot query memory database without primaryKey of type string");
+      logger.debug(`given primaryKey: ${primaryKey}`);
       throw new Error(`primaryKey string is required, got primaryKey=${primaryKey}`);
     }
 
@@ -70,6 +78,8 @@ class MemoryDB {
    */
   async del(primaryKey, secondaryKey) {
     if (!(validateKey(primaryKey) && validateKey(secondaryKey))) {
+      logger.error("Cannot delete from memory database without primaryKey and/or secondaryKey of type string");
+      logger.debug(`given primaryKey: ${primaryKey}, secondaryKey: ${secondaryKey}`);
       throw new Error(
         `primaryKey and secondaryKey strings are required, got primaryKey=${primaryKey}, secondaryKey=${secondaryKey}`
       );
@@ -77,6 +87,8 @@ class MemoryDB {
 
     // Throw if trying to delete a key that doesn't exist
     if (!(await this.get(primaryKey, secondaryKey))) {
+      logger.error("Cannot delete record from memory database that doesn't exist in it");
+      logger.debug(`given primaryKey: ${primaryKey}, secondaryKey: ${secondaryKey}`);
       throw new Error(
         `missing entry for primaryKey=${primaryKey} and secondaryKey=${secondaryKey}`
       );

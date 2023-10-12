@@ -4,6 +4,8 @@ const { randomUUID } = require('crypto');
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
 
+const logger = require('../logger');
+
 // Functions for working with fragment metadata/data using our DB
 const {
   readFragment,
@@ -31,29 +33,40 @@ const formats = [
 
 class Fragment {
   constructor({ id = randomUUID(), ownerId, created = new Date(), updated = new Date(), type, size = 0 }) {
-    if (ownerId == undefined || type == undefined)
+    if (ownerId == undefined || type == undefined) {
+      logger.error("Cannot create fragment without ownerId and/or type");
+      logger.debug(`given ownerId: ${ownerId}, type: ${type}`);
       throw new Error('ownerId and type are required');
+    }
     else {
       this.id = id;
       this.ownerId = ownerId;
       this.created = new Date(created);
       this.updated = new Date(updated);
 
-      if (Fragment.isSupportedType(type) == true) {
+      if (Fragment.isSupportedType(type) == true)
         this.type = type;
-      }
-      else
+      else {
+        logger.error("Cannot create fragment of unsupported type");
+        logger.debug(`given type: ${type}`);
         throw new Error('invalid type');
+      }
 
       if (typeof size == 'number') {
         if (size >= 0)
           this.size = size;
-        else
+        else {
+          logger.error("Cannot create fragment of negative size");
+          logger.debug(`given size: ${size}`);
           throw new Error('size cannot be negative');
+        }
       }
 
-      else
+      else {
+        logger.error("Cannot create fragment of non-number size");
+        logger.debug(`given size: ${size}`);
         throw new Error('size must be a number');
+      }
     }
   }
 
@@ -75,8 +88,11 @@ class Fragment {
    */
   static async byId(ownerId, id) {
     const result = await readFragment(ownerId, id);
-    if (result == undefined)
+    if (result == undefined) {
+      logger.error(`Fragment wasn't found for the given ownerId and id`);
+      logger.debug(`given ownerId: ${ownerId}, id: ${id}`);
       throw new Error('fragment not found');
+    }
     else
       return readFragment(ownerId, id);
   }
@@ -114,8 +130,11 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    if (data == undefined)
+    if (data == undefined) {
+      logger.error("Cannot set fragment's data as it is undefined.");
+      logger.debug(`given data: ${data}`);
       throw new Error('data is required');
+    }
     else {
       this.updated = new Date();
       this.size = data.length;
