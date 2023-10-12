@@ -65,7 +65,7 @@ CentOS
 - Update system's packages with `sudo yum update`
 - Install package (git as the example) `sudo yum install git -y`
 - Check package version (git as the example) `git --version`
-- Switch between node versions `nvm use --lts` or `nvm use 16`(version 16 is installed)
+- Switch between node versions `nvm use --lts` or `nvm use 16`(version 16 is installed) or  `nvm use 14`(version 14 is installed)
 
 Connect with PuTTY
 1. Session -> Host Name set to `Public IPv4 address` (something like 54.165.10.190), check port to be `22`
@@ -88,6 +88,9 @@ Copy source code from local machine to EC2
    `ec2-54-165-10-190.compute-1.amazonaws.com` example of remote computer address (check Public IPv4 DNS)
 
    `-P 22` if some [errors](https://stackoverflow.com/questions/62817854/ssh-init-network-error-cannot-assign-requested-address) still arise add this flag to force it connect on port 22
+3. Run `tar -xvzf fragments-0.0.1.tgz` on the remote machine
+4. Run `cd package` on the remote machine
+5. Run `nvm use 14` prior to npm installing for fragments-ui, otherwise it gets frozen. 
 
 Start & Stop EC2 instances from AWS command line:
 - Start with `aws ec2 start-instances --instance-ids {instance-id}`
