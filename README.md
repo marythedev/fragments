@@ -88,6 +88,8 @@ Copy source code from local machine to EC2
    `ec2-54-165-10-190.compute-1.amazonaws.com` example of remote computer address (check Public IPv4 DNS)
 
    `-P 22` if some [errors](https://stackoverflow.com/questions/62817854/ssh-init-network-error-cannot-assign-requested-address) still arise add this flag to force it connect on port 22
+3. Run `tar -xvzf fragments-0.0.1.tgz` on the remote machine
+4. Run `cd package` on the remote machine
 
 Start & Stop EC2 instances from AWS command line:
 - Start with `aws ec2 start-instances --instance-ids {instance-id}`
