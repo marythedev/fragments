@@ -47,6 +47,17 @@ curl.exe http://localhost:8080
 curl.exe -s localhost:8080 | jq
 ```
 
+Fetch for users' fragments
+```
+curl.exe -i -u user1@email.com:password1 http://localhost:8080/v1/fragments
+curl.exe -i -u user2@email.com:password2 http://localhost:8080/v1/fragments
+```
+Add new fragments for users (example)
+```
+curl.exe -i -X POST -u user1@email.com:password1  -H "Content-Type: text/plain" -d "This is a fragment" http://localhost:8080/v1/fragments
+curl.exe -i -X POST -u user2@email.com:password2  -H "Content-Type: text/plain" -d "This is a fragment" http://localhost:8080/v1/fragments
+```
+
 
 EC2 Environment
 -
