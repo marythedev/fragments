@@ -5,12 +5,10 @@
  *
  *   6Xoj0UXOW3FNirlSYranli5gY6dDq60hs24EIAcHAEc=
  *
- * You can either use the whole thing, or truncate to only use the first 8
+ * Use .slice(0, 8) if you want reduce the size and truncate to only use the first 8
  * characters or so in order to reduce the length:
  *
  *   6Xoj0UXO
- *
- * Use .slice(0, 8) if you want reduce the size.
  */
 
 const crypto = require('crypto');
