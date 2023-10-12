@@ -1,4 +1,5 @@
 const request = require('supertest');
+const crypto = require('crypto');   // for hashing email addresses
 
 const app = require('../../src/app');
 
@@ -45,7 +46,8 @@ describe('POST /v1/fragments', () => {
         expect(typeof res.body.fragment).toBe("object");
 
         expect(res.body.fragment.id).toBeDefined();
-        expect(res.body.fragment.ownerId).toBe("user1@email.com");
+        const email = crypto.createHash('sha256').update("user1@email.com").digest('hex');
+        expect(res.body.fragment.ownerId).toBe(email);
         expect(res.body.fragment.created).toBeDefined();
         expect(res.body.fragment.updated).toBeDefined();
         expect(res.body.fragment.type).toBe("text/plain");
