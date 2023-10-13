@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
             fragment: fragment
         };
 
-        const url = process.env.API_URL || `http://${req.headers.host}`;
+        const url = `http://${req.headers.host}` || process.env.API_URL;
         const location = new URL(`/v1/fragments/${fragment.id}`, url);
         res.setHeader('Location', location.href);
 
