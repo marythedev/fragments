@@ -118,3 +118,10 @@ Docker
 - for example, `docker run --rm --name fragments --env-file env.jest -e LOG_LEVEL=debug -p 8080:8080 -d fragments:latest`
 - run `docker logs -f <detached container id>` (`-f` flag is for following the logs, can be run without it)
 
+### Docker on EC2
+1. Install Docker `sudo yum install -y docker` (might need to reload the ssh session `exit`)
+2. Start Docker `sudo dockerd`
+3. Pack, transfer & unpack codebase (refer to commands in the sections above)
+4. Run `npm install` (will generate package-lock.json)
+5. Build image `sudo docker build -t fragments:latest .`
+6. Run other commands needed to run docker container (add `sudo` for root rights)
