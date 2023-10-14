@@ -95,3 +95,26 @@ Copy source code from local machine to EC2
 Start & Stop EC2 instances from AWS command line:
 - Start with `aws ec2 start-instances --instance-ids {instance-id}`
 - Stop with `aws ec2 stop-instances --instance-ids {instance-id}`
+
+
+
+
+
+Docker
+-
+1. Run `docker build -t fragments:latest .` to build docker image
+    - -t fragments:latest, is a [tag](https://docs.docker.com/engine/reference/commandline/build/#tag) with name (fragments) and version (latest)
+2. View created image with `docker image ls fragments`
+3. Run `docker run --rm --name fragments --env-file .env -p 8080:8080 fragments:latest`
+    - `--env-file .env` adds environmental variables from local .env file
+    - `-p 8080:8080` binds local 8080 port to docker machine's 8080 port (8080 on the host/local machine (left-hand) and 8080 in the container (right-hand))
+
+##### Overwrite environmental variables 
+- add `-e` tag with key=value
+- for example, `docker run --rm --name fragments --env-file env.jest -e LOG_LEVEL=debug -p 8080:8080 fragments:latest`
+
+##### Detach container (daemon, run in background)
+- add `-d` flag (which will print the id of the detached container)
+- for example, `docker run --rm --name fragments --env-file env.jest -e LOG_LEVEL=debug -p 8080:8080 -d fragments:latest`
+- run `docker logs -f <detached container id>` (`-f` flag is for following the logs, can be run without it)
+
