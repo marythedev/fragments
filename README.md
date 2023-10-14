@@ -70,16 +70,16 @@ CentOS
 Connect with PuTTY
 1. Session -> Host Name set to `Public IPv4 address` (something like 54.165.10.190), check port to be `22`
 2. Connection -> Seconds between keepalives set to `30`
-3. Connection -> SSH -> Auth -> Credentials -> Private key file for authentication select file `dps955-key-pair.ppk` (in fragments/.ssh folder)
+3. Connection -> SSH -> Auth -> Credentials -> Private key file for authentication select file `dps955-fragments-key-pair.ppk` (in fragments/.ssh folder)
 4. Login as `ec2-user`
 
 Copy source code from local machine to EC2
 1. Run `npm pack`
-2. Run `pscp -v -i .ssh/dps955-key-pair.ppk fragments-0.0.1.tgz ec2-user@ec2-54-165-10-190.compute-1.amazonaws.com:`
+2. Run `pscp -v -i .ssh/dps955-fragments-key-pair.ppk fragments-0.0.1.tgz ec2-user@ec2-54-165-10-190.compute-1.amazonaws.com:`
 
    `-v` for verbose (to give detailed explanation, especially if something goes wrong)
    
-   `-i .ssh/dps955-key-pair.ppk` key-pairs for connection
+   `-i .ssh/dps955-fragments-key-pair.ppk` key-pairs for connection
 
    `fragments-0.0.1.tgz` update with newer version if applicable
    
