@@ -107,12 +107,11 @@ Docker
 docker login --username <username> --password "<password>"
 ```
 
-##### Push and pull to/from Docker Hub
-- Push `docker push mdmytrenko/fragments`
+##### Push to Docker Hub
+Push `docker push mdmytrenko/fragments`
    - `mdmytrenko/fragments` is image name
    - if tag is omitted `:latest` tag is used by default as `mdmytrenko/fragments:latest`
    - to push all tags on `mdmytrenko/fragments` run `docker push --all-tags mdmytrenko/fragments`
-- 
 
 ##### Create and run image
 1. Run `docker build -t fragments:latest .` to build docker image
