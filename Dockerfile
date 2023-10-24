@@ -1,5 +1,5 @@
 #Docker instructions necessary for Docker Engine to build the image
-FROM node:18.17.0
+FROM node:18.17.0-alpine3.17@sha256:e0641d0ac1f49f045c8dc05bbedc066fc7c88bc2730ead423088eeb0788623a1
 
 LABEL maintainer="Maria Dmytrenko"
 LABEL description="Fragments node.js microservice"
@@ -22,7 +22,10 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install node dependencies defined in package-lock.json
-RUN npm install
+RUN npm ci --production
+
+# Install tini to handle signals (terminate container, etc)
+RUN apk add --no-cache tini
 
 # Copy src to /app/src/
 COPY ./src ./src
@@ -30,8 +33,20 @@ COPY ./src ./src
 # Copy our HTPASSWD file
 COPY ./tests/.htpasswd ./tests/.htpasswd
 
+#changing the ownership of the files to node user
+COPY --chown=node:node . /app
+
+#changing the user to a less privileged user
+USER node
+
+# Use tini to handle signals (terminate container, etc)
+ENTRYPOINT ["tini", "--"]
+
 # Start the container by running our server
-CMD npm start
+CMD ["node", "src/server.js"]
 
 # Run service on port 8080
 EXPOSE 8080
+
+HEALTHCHECK --interval=3m --retries=3 \
+    CMD curl --fail http://localhost:${PORT}/ || exit 1
