@@ -102,12 +102,27 @@ Start & Stop EC2 instances from AWS command line:
 
 Docker
 -
+##### Authenticate
+```
+docker login --username <username> --password "<password>"
+```
+
+##### Push and pull to/from Docker Hub
+- Push `docker push mdmytrenko/fragments`
+   - `mdmytrenko/fragments` is image name
+   - if tag is omitted `:latest` tag is used by default as `mdmytrenko/fragments:latest`
+   - to push all tags on `mdmytrenko/fragments` run `docker push --all-tags mdmytrenko/fragments`
+- 
+
+##### Create and run image
 1. Run `docker build -t fragments:latest .` to build docker image
     - -t fragments:latest, is a [tag](https://docs.docker.com/engine/reference/commandline/build/#tag) with name (fragments) and version (latest)
 2. View created image with `docker image ls fragments`
 3. Run `docker run --rm --name fragments --env-file .env -p 8080:8080 fragments:latest`
     - `--env-file .env` adds environmental variables from local .env file
     - `-p 8080:8080` binds local 8080 port to docker machine's 8080 port (8080 on the host/local machine (left-hand) and 8080 in the container (right-hand))
+    - in order to have signals from tini that is built into docker, run `docker run --init --rm --name fragments --env-file .env -p 8080:8080 fragments:latest`
+      - NOTE: `--init` won't work on alpine images
 
 ##### Overwrite environmental variables 
 - add `-e` tag with key=value
@@ -117,6 +132,11 @@ Docker
 - add `-d` flag (which will print the id of the detached container)
 - for example, `docker run --rm --name fragments --env-file env.jest -e LOG_LEVEL=debug -p 8080:8080 -d fragments:latest`
 - run `docker logs -f <detached container id>` (`-f` flag is for following the logs, can be run without it)
+
+##### Remove image (locally)
+```
+docker rmi hello-world
+```
 
 ### Docker on EC2
 1. Install Docker `sudo yum install -y docker` (might need to reload the ssh session `exit`)
