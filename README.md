@@ -1,5 +1,13 @@
 # Fragments back-end API
 
+Update `package.json` version with (set version instead of <version>, i.e. 1.0.0
+```
+npm version <version> -m "Release v<version>"
+```
+
+<hr>
+
+
 Run `eslint` to spot any syntactic error
 ```
 npm run lint
