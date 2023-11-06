@@ -1,0 +1,58 @@
+# Happens whenever a new tag is pushed
+# (Commit is tagged after it has been tested)
+#
+# To create a new tag, package.json version also needs to be updated:
+# $ npm version 0.5.0
+# This will update `version` in package.json to `0.5.0` and create a new
+# tag, `v0.5.0` in git. This tag will be used to tag a docker image before
+# its push to AWS.
+name: cd
+
+on:
+  push:
+    # Whenever a new tag is pushed
+    tags:
+      # Any tag starting with v... should trigger this workflow.
+      - 'v**'
+
+jobs:
+  # NOTE: this assumes our CI jobs have already passed previously
+  # (i.e., that we don't tag a commit manually until we know a build is working)
+  aws:
+    name: AWS
+    runs-on: ubuntu-latest
+    steps:
+        - name: Check out code
+          uses: actions/checkout@v3
+
+        # Set up buildx for optimal Docker Builds, see:
+        # https://github.com/docker/setup-buildx-action
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v2
+
+        - name: Configure AWS Credentials using Secrets
+          uses: aws-actions/configure-aws-credentials@v2
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+            aws-region: us-east-1
+
+        # Login to our ECR repository using the configured credentials
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+        
+        # Build and Push an Image to Amazon ECR
+        - name: Build and push to Amazon ECR
+          env:
+            # Define an Environment Variable with ECR Registry, getting
+            # the value from the previous step's outputs
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPO: fragments
+            VERSION_TAG: ${{ github.ref_name }}
+          uses: docker/build-push-action@v4
+          with:
+            push: true
+            # Use 2 tags: :tag-version and :latest
+            tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}, ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
