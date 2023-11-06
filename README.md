@@ -5,6 +5,11 @@ Update `package.json` version with (set version instead of <version>, i.e. 1.0.0
 npm version <version> -m "Release v<version>"
 ```
 
+Push tag
+```
+git push origin master --tags
+```
+
 <hr>
 
 
