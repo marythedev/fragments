@@ -115,7 +115,7 @@ Start & Stop EC2 instances from AWS command line:
 
 Docker
 -
-##### Authenticate
+### Authenticate
 ```
 docker login --username <username> --password "<password>"
 ```
@@ -135,6 +135,8 @@ Push `docker push mdmytrenko/fragments`
     - `-p 8080:8080` binds local 8080 port to docker machine's 8080 port (8080 on the host/local machine (left-hand) and 8080 in the container (right-hand))
     - in order to have signals from tini that is built into docker, run `docker run --init --rm --name fragments --env-file .env -p 8080:8080 fragments:latest`
       - NOTE: `--init` won't work on alpine images
+    - `fragments` is container name
+    - `fragments:latest` is image name
 
 ##### Overwrite environmental variables 
 - add `-e` tag with key=value
@@ -150,6 +152,7 @@ Push `docker push mdmytrenko/fragments`
 docker rmi hello-world
 ```
 
+
 ### Docker on EC2
 1. Install Docker `sudo yum install -y docker` (might need to reload the ssh session `exit`)
 2. Start Docker `sudo dockerd`
@@ -157,3 +160,26 @@ docker rmi hello-world
 4. Run `npm install` (will generate package-lock.json)
 5. Build image `sudo docker build -t fragments:latest .`
 6. Run other commands needed to run docker container (add `sudo` for root rights)
+
+##### Pull Docker Images from Amazon Elastic Container Registry
+Login the docker client with your Amazon Elastic Container Registry
+On the EC2 instance run:
+```
+# Define Environment Variables for all AWS Credentials.  Use the Learner Lab AWS CLI Credentials:
+$ export AWS_ACCESS_KEY_ID=<learner-lab-access-key-id>
+$ export AWS_SECRET_ACCESS_KEY=<learner-lab-secret-access-key>
+$ export AWS_SESSION_TOKEN=<learner-lab-session_token>
+$ export AWS_DEFAULT_REGION=us-east-1
+
+# Login the EC2's docker client, swapping your full ECR registry name
+# Make sure docker is running! (sudo dockerd)
+$ sudo docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 390240750368.dkr.ecr.us-east-1.amazonaws.com
+```
+Pull Image
+```
+sudo docker pull 390240750368.dkr.ecr.us-east-1.amazonaws.com/fragments:vtag
+```
+Run Pulled Image
+```
+sudo docker run --rm --name fragments --env-file .env -p 8080:8080 390240750368.dkr.ecr.us-east-1.amazonaws.com/fragments:vtag
+```
