@@ -22,10 +22,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install node dependencies defined in package-lock.json
-RUN npm ci --production
-
 # Install tini to handle signals (terminate container, etc)
-RUN apk add --no-cache tini
+RUN npm ci --production && \
+    apk add --no-cache tini=0.19.0-r1
 
 # Copy src to /app/src/
 COPY ./src ./src
