@@ -18,11 +18,11 @@ const {
 
 const formats = [
   'text/plain',
-  /* Formats are not supported yet:
-
   'text/markdown',
   'text/html',
   'application/json',
+
+  /* Formats are not supported yet:
   'image/png',
   'image/jpeg',
   'image/webp',
@@ -169,14 +169,14 @@ class Fragment {
 
     if (this.mimeType == 'text/plain')
       formats = ['text/plain'];
-    /* Formats are not supported yet:
-
     else if (this.mimeType == 'text/markdown')
       formats = ['text/markdown', 'text/html', 'text/plain'];
     else if (this.mimeType == 'text/html')
       formats = ['text/html', 'text/plain'];
     else if (this.mimeType == 'application/json')
       formats = ['application/json', 'text/plain'];
+
+    /* Formats are not supported yet:
     else if (this.mimeType == 'image/png')
       formats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
     else if (this.mimeType == 'image/jpeg')

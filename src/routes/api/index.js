@@ -27,4 +27,7 @@ router.post('/fragments', rawBody(), require('./post'));
 // GET /v1/fragments/:id - get a fragment by id
 router.get('/fragments/:id', require('./byId'));
 
+// GET /v1/fragments/:id - get a fragment by id
+router.get('/fragments/:id/info', require('./info'));
+
 module.exports = router;
