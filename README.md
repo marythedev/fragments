@@ -121,6 +121,8 @@ docker login --username <username> --password "<password>"
 ```
 
 ##### Push to Docker Hub
+Tag `docker tag fragments:latest mdmytrenko/fragments:latest`
+
 Push `docker push mdmytrenko/fragments`
    - `mdmytrenko/fragments` is image name
    - if tag is omitted `:latest` tag is used by default as `mdmytrenko/fragments:latest`
