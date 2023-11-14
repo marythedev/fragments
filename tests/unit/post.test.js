@@ -25,9 +25,6 @@ describe('POST /v1/fragments', () => {
         await request(app).post('/v1/fragments').auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/text').send("This is a fragment").expect(415);
 
-        await request(app).post('/v1/fragments').auth('user1@email.com', 'password1')
-            .set('Content-Type', 'text/html').send("This is a fragment").expect(415);
-
         await request(app).post('/v1/fragments').auth('user2@email.com', 'password2')
             .set('Content-Type', 'image/jpg').send("This is a fragment").expect(415);
 
@@ -35,7 +32,7 @@ describe('POST /v1/fragments', () => {
             .set('Content-Type', 'image/gif').send("This is a fragment").expect(415);
     });
 
-    test('authenticated user can create text/plain fragment', async () => {
+    test('authenticated user can fragments of supported type', async () => {
         const res = await request(app).post('/v1/fragments')
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/plain')
@@ -55,8 +52,18 @@ describe('POST /v1/fragments', () => {
 
         const location = res.header['location'];
         const location_without_host = new URL(location).pathname;
-        const expected_location_without_host = `/v1/fragments/${res.body.fragment.id}`; 
+        const expected_location_without_host = `/v1/fragments/${res.body.fragment.id}`;
         expect(location_without_host).toBe(expected_location_without_host);
+
+
+        await request(app).post('/v1/fragments').auth('user1@email.com', 'password1')
+            .set('Content-Type', 'text/html').send("<h1>This is a fragment</h1>").expect(201);
+
+        await request(app).post('/v1/fragments').auth('user1@email.com', 'password1')
+            .set('Content-Type', 'text/markdown').send("### This is a fragment").expect(201);
+
+        await request(app).post('/v1/fragments').auth('user1@email.com', 'password1')
+            .set('Content-Type', 'application/json').send('{"status": "testing"}').expect(201);
     });
 
 });

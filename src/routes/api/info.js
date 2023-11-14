@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     const fragmentMetadata = await readFragment(req.user, req.params.id);
 
     if (fragmentMetadata) {
-      res.status(200).send(fragmentMetadata);
+      res.status(200).json(fragmentMetadata);
     } else {
       logger.warn(`Requested fragment does not exist in the memory.`);
       logger.debug(`Fragment not found with ID ${req.params.id}`);

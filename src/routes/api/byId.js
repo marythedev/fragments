@@ -37,11 +37,13 @@ module.exports = async (req, res) => {
 
     else if (fragmentMetadata.type == 'application/json') {
       fragmentData = Buffer.from(fragmentData);
-      fragmentData = fragmentData.toString('utf8');
       console.log('Got user fragment data', fragmentData);
+      fragmentData = fragmentData.toString('utf8');
+      fragmentData = fragmentData.replace(/\r\n/g, '');
 
-      if (ext)
+      if (ext) {
         fragmentData = convert(res, fragmentMetadata, fragmentData, ext);
+      }
 
       res.status(200).json(fragmentData);
     }
