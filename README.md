@@ -149,6 +149,19 @@ Push `docker push mdmytrenko/fragments`
 - for example, `docker run --rm --name fragments --env-file env.jest -e LOG_LEVEL=debug -p 8080:8080 -d fragments:latest`
 - run `docker logs -f <detached container id>` (`-f` flag is for following the logs, can be run without it)
 
+##### Docker Compose
+- run `docker compose up` to run docker compose
+  - stop with `Ctrl+C`
+- OR run service(s) in the background using -d, and use down to stop them:
+  - `docker compose up -d`
+  - `docker compose down`
+- if changes are made to source code and image need to be rebuilt, use the `--build` flag to force a rebuild
+  - `docker compose up --build`
+- command to make `local-aws-setup.sh` executable
+  - `chmod +x ./scripts/local-aws-setup.sh`
+- execute script by running
+  - `./scripts/local-aws-setup.sh`
+
 ##### Remove image (locally)
 ```
 docker rmi hello-world
