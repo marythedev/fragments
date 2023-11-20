@@ -16,15 +16,12 @@ module.exports = async (req, res) => {
 
   if (fragmentMetadata) {
     let fragmentData = await readFragmentData(req.user, id);
-
-    res.setHeader('Content-Type', fragmentMetadata.type);
+    res.setHeader('content-type', fragmentMetadata.type);
     res.setHeader('Content-Length', fragmentMetadata.size);
 
-    if (fragmentMetadata.type == 'text/plain'
-      || fragmentMetadata.type == 'text/markdown'
-      || fragmentMetadata.type == 'text/html') {
-
-      console.log('Got user fragment data', { fragmentData });
+    if (fragmentMetadata.type.startsWith('text/plain')
+      || fragmentMetadata.type.startsWith('text/markdown')
+      || fragmentMetadata.type.startsWith('text/html')) {
 
       if (ext) {
         //fragmentData = Buffer.from(fragmentData);
@@ -35,15 +32,12 @@ module.exports = async (req, res) => {
       res.status(200).send(fragmentData);
     }
 
-    else if (fragmentMetadata.type == 'application/json') {
+    else if (fragmentMetadata.type.startsWith('application/json')) {
       fragmentData = Buffer.from(fragmentData);
-      console.log('Got user fragment data', fragmentData);
-      fragmentData = fragmentData.toString('utf8');
-      fragmentData = fragmentData.replace(/\r\n/g, '');
+      fragmentData = fragmentData.toString();
 
-      if (ext) {
+      if (ext)
         fragmentData = convert(res, fragmentMetadata, fragmentData, ext);
-      }
 
       res.status(200).json(fragmentData);
     }
@@ -83,23 +77,23 @@ const convert = (res, metadata, data, ext) => {
 
   //determine possible conversion
   let possibleConversions;
-  if (metadata.type == 'text/plain')
+  if (metadata.type.startsWith('text/plain'))
     possibleConversions = ['text/plain'];
-  else if (metadata.type == 'text/markdown')
+  else if (metadata.type.startsWith('text/markdown'))
     possibleConversions = ['text/markdown', 'text/html', 'text/plain'];
-  else if (metadata.type == 'text/html')
+  else if (metadata.type.startsWith('text/html'))
     possibleConversions = ['text/html', 'text/plain'];
-  else if (metadata.type == 'application/json')
+  else if (metadata.type.startsWith('application/json'))
     possibleConversions = ['application/json', 'text/plain'];
 
   /* Formats are not supported yet:
-  else if (metadata.type == 'image/png')
+  else if (metadata.type .startsWith('image/png'))
     possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-  else if (metadata.type == 'image/jpeg')
+  else if (metadata.type.startsWith('image/jpeg'))
     possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-  else if (metadata.type == 'image/webp')
+  else if (metadata.type.startsWith('image/webp'))
     possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-  else if (metadata.type == 'image/gif')
+  else if (metadata.type.startsWith('image/gif'))
     possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];  
   */
 

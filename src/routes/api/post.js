@@ -13,7 +13,11 @@ module.exports = async (req, res) => {
         res.status(415).json(createErrorResponse(415, "Content-Type is not supported"));
     }
     else {
-        const { type } = contentType.parse(req);
+        let { type, parameters } = contentType.parse(req);
+
+        if (parameters && parameters.charset == "utf-8") 
+            type += "; charset=utf-8";
+
         const ownerId = req.user;
         const fragment = new Fragment({ ownerId, type });
         await fragment.save();

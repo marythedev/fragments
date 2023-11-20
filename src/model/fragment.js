@@ -44,6 +44,7 @@ class Fragment {
       this.created = new Date(created);
       this.updated = new Date(updated);
 
+      
       if (Fragment.isSupportedType(type) == true)
         this.type = type;
       else {

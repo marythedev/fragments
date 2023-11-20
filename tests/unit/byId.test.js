@@ -38,58 +38,67 @@ describe('GET /v1/fragments:id', () => {
     });
 
     // Using a valid username/password pair should give a success result with a fragment's data
-    test('authenticated user can see created fragments data of supported types by id', async () => {
+    test('authenticated user can create fragments data of text/plain and get them by id', async () => {
 
         // Create and test a fragment of type text/plain 
-        let res = await request(app).post('/v1/fragments')
+        const res = await request(app).post('/v1/fragments')
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/plain')
             .send("This is a fragment");
 
-        let fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
+        const fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
             .auth('user1@email.com', 'password1');
 
         expect(fragment_by_id.header['content-type']).toBe(res.body.fragment.type);
         expect(fragment_by_id.header['content-length']).toBe(res.body.fragment.size.toString());
         expect(fragment_by_id.text).toBe("This is a fragment");
 
+    });
+
+    // Using a valid username/password pair should give a success result with a fragment's data
+    test('authenticated user can create fragments data of text/markdown and get them by id', async () => {
 
         // Create and test a fragment of type text/markdown
-        res = await request(app).post('/v1/fragments')
+        const res = await request(app).post('/v1/fragments')
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/markdown')
             .send("# This is a fragment");
 
-        // Get the fragment by id and request conversion to text/html
-        fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
+        const fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
             .auth('user1@email.com', 'password1');
 
         expect(fragment_by_id.header['content-type']).toBe('text/markdown');
         expect(fragment_by_id.text).toContain('# This is a fragment');
 
+    });
+
+    // Using a valid username/password pair should give a success result with a fragment's data
+    test('authenticated user can create fragments data of text/html and get them by id', async () => {
 
         // Create and test a fragment of type text/html
-        res = await request(app).post('/v1/fragments')
+        const res = await request(app).post('/v1/fragments')
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/html')
             .send("<h1>This is a fragment</h1>");
 
-        // Get the fragment by id and request conversion to text/html
-        fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
+        const fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
             .auth('user1@email.com', 'password1');
 
         expect(fragment_by_id.header['content-type']).toBe('text/html');
         expect(fragment_by_id.text).toContain('<h1>This is a fragment</h1>');
 
+    });
+
+    // Using a valid username/password pair should give a success result with a fragment's data
+    test('authenticated user can create fragments data of application/json and get them by id', async () => {
 
         // Create and test a fragment of type application/json
-        res = await request(app).post('/v1/fragments')
+        const res = await request(app).post('/v1/fragments')
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'application/json; charset=utf-8')
             .send("{'fragment': 'This is a fragment'}");
 
-        // Get the fragment by id and request conversion to text/html
-        fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
+        const fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}`)
             .auth('user1@email.com', 'password1');
 
         expect(fragment_by_id.header['content-type']).toBe('application/json; charset=utf-8');
