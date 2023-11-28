@@ -30,4 +30,7 @@ router.get('/fragments/:id', require('./byId'));
 // GET /v1/fragments/:id - get a fragment by id
 router.get('/fragments/:id/info', require('./info'));
 
+// DELETE /fragments/:id - delete a fragment by id
+router.delete('/fragments/:id', require('./delete'));
+
 module.exports = router;

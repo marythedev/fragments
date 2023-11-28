@@ -1,4 +1,4 @@
-const { readFragment, readFragmentData } = require('../../model/data/memory/memory');
+const { readFragment, readFragmentData } = require('../../model/data/memory');
 const { createErrorResponse } = require('../../response');
 const logger = require('../../logger');
 var MarkdownIt = require('markdown-it');

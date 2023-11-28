@@ -126,6 +126,20 @@ class Fragment {
   }
 
   /**
+   * Updates the fragment's size
+   * @param {Buffer} data
+   * @returns nothing
+   */
+  updateSize(data) {
+    if (data == undefined)
+      this.size = 0;
+    else {
+      this.updated = new Date();
+      this.size = data.length;
+    }
+  }
+
+  /**
    * Set's the fragment's data in the database
    * @param {Buffer} data
    * @returns Promise<void>

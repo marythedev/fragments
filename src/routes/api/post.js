@@ -1,7 +1,7 @@
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
 const contentType = require('content-type');
-
+const { writeFragment, writeFragmentData } = require('../../model/data/memory');
 const logger = require('../../logger');
 
 // Creates a fragment for the current user
@@ -20,9 +20,10 @@ module.exports = async (req, res) => {
 
         const ownerId = req.user;
         const fragment = new Fragment({ ownerId, type });
-        await fragment.save();
-        await fragment.setData(req.body);
-        
+        fragment.updateSize(req.body);
+        await writeFragment(fragment);
+        await writeFragmentData(ownerId, fragment.id, req.body);
+
         logger.info(`Created fragment: ${JSON.stringify(fragment)} `);
         
         let data = {
