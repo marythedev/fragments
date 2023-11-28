@@ -56,3 +56,35 @@ jobs:
             push: true
             # Use 2 tags: :tag-version and :latest
             tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}, ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest
+          
+        # Update fragment's Task Definition JSON to use the newly updated Docker Image (i.e., the tag that was just pushed to ECR).
+        # Also update/set the environment variables if needed.
+        - name: Fill in the new image ID in the Amazon ECS task definition
+          id: update-task-def
+          uses: aws-actions/amazon-ecs-render-task-definition@v1
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPO: fragments
+            VERSION_TAG: ${{ github.ref_name }}
+          with:
+            task-definition: fragments-definition.json
+            container-name: fragments
+            # Use the image that was just just built and pushed to ECR for this tag
+            image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ env.VERSION_TAG }}
+            environment-variables: |
+              LOG_LEVEL=info
+              NODE_ENV=production
+              AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+              AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }}
+              AWS_COGNITO_POOL_ID=${{ secrets.AWS_COGNITO_POOL_ID }}
+              AWS_COGNITO_CLIENT_ID=${{ secrets.AWS_COGNITO_CLIENT_ID }}
+              API_URL=${{ secrets.API_URL }}
+        
+        - name: Deploy Amazon ECS task definition
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          with:
+            task-definition: ${{ steps.update-task-def.outputs.task-definition }}
+            cluster: fragments-cluster
+            service: fragments-service
+            wait-for-service-stability: true
