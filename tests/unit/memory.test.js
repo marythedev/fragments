@@ -4,7 +4,7 @@ const {
     readFragmentData,
     writeFragmentData,
     listFragments
-} = require('../../src/model/data/memory/memory');
+} = require('../../src/model/data/memory');
 
 
 describe('Memory back-end data strategy', () => {
