@@ -1,7 +1,7 @@
 const { createSuccessResponse, createErrorResponse } = require('../../response');
 const { Fragment } = require('../../model/fragment');
 const contentType = require('content-type');
-const { writeFragment, writeFragmentData } = require('../../model/data/memory');
+const { writeFragment, writeFragmentData } = require('../../model/data');
 const logger = require('../../logger');
 
 // Creates a fragment for the current user
@@ -21,6 +21,8 @@ module.exports = async (req, res) => {
         const ownerId = req.user;
         const fragment = new Fragment({ ownerId, type });
         fragment.updateSize(req.body);
+        if (process.env.AWS_REGION)        //save dates as strings when storing with AWS
+            fragment.convertDatestoDateString();
         await writeFragment(fragment);
         await writeFragmentData(ownerId, fragment.id, req.body);
 

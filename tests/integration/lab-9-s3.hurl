@@ -47,10 +47,3 @@ user1@email.com:password1
 
 # Confirm that the server returns a 404, since the fragment should be deleted.
 HTTP/1.1 404
-
-
-#DELETE $url
-#Authorization: Bearer <your_token>
-
-# Confirm that the server returns a 404 since the fragment should be deleted
-#ASSERT status 404

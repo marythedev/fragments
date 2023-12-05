@@ -1,5 +1,5 @@
 const { createSuccessResponse, createErrorResponse } = require('../../response');
-const { deleteFragment } = require('../../model/data/memory');
+const { deleteFragment } = require('../../model/data');
 const logger = require('../../logger');
 
 // Delete fragment for the current user

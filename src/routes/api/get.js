@@ -1,5 +1,5 @@
 const { createSuccessResponse } = require('../../response');
-const { listFragments } = require('../../model/data/memory');
+const { listFragments } = require('../../model/data');
 
 // Gets a list of fragments for the current user
 module.exports  = async (req, res) => {

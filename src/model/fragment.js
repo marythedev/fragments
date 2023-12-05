@@ -43,7 +43,6 @@ class Fragment {
       this.ownerId = ownerId;
       this.created = new Date(created);
       this.updated = new Date(updated);
-
       
       if (Fragment.isSupportedType(type) == true)
         this.type = type;
@@ -155,6 +154,16 @@ class Fragment {
       this.size = data.length;
       return writeFragmentData(this.ownerId, this.id, data);
     }
+  }
+
+  /**
+   * Updates the fragment's dates to the string format
+   * @param none
+   * @returns nothing
+   */
+  async convertDatestoDateString() {
+    this.created = this.created.toDateString();
+    this.updated = this.updated.toDateString();
   }
 
   /**
