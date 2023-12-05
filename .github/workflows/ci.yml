@@ -90,7 +90,7 @@ jobs:
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_DYNAMODB_TABLE_NAME: fragments
       - name: Setup Local AWS Resources
-        run: 
+        run: |
           chmod +x ./scripts/local-aws-setup.sh
           ./scripts/local-aws-setup.sh
       - name: Run Hurl Tests
