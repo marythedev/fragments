@@ -156,7 +156,7 @@ Push `docker push mdmytrenko/fragments`
   - `docker compose up -d`
   - `docker compose down`
 - if changes are made to source code and image need to be rebuilt, use the `--build` flag to force a rebuild
-  - `docker compose up --build`
+  - `docker compose up --build`, `docker compose up --build -d` (in background)
 - command to make `local-aws-setup.sh` executable
   - `chmod +x ./scripts/local-aws-setup.sh`
 - execute script by running
