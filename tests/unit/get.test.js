@@ -24,9 +24,11 @@ describe('GET /v1/fragments', () => {
       .auth('user1@email.com', 'password1')
       .set('Content-Type', 'text/plain')
       .send("This is a fragment");
+    let post_body = JSON.parse(post_res.text);
 
     const get_res = await request(app).get('/v1/fragments').auth('user1@email.com', 'password1');
+    let get_body = JSON.parse(get_res.text);
 
-    expect(get_res.body.fragments[0]).toBe(post_res.body.fragment.id);
+    expect(get_body.fragments[0]).toBe(post_body.fragment.id);
   });
 });

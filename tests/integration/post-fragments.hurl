@@ -97,7 +97,7 @@ HTTP/1.1 401
 # Authenticated POST to /v1/fragments
 POST http://localhost:8080/v1/fragments
 # Send a json fragment
-Content-Type: application/json; charset=utf-8
+Content-Type: application/json
 # Include HTTP Basic Auth credentials using the [BasicAuth] section
 [BasicAuth]
 user1@email.com:password1
@@ -119,7 +119,7 @@ jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
 # You could also write a regex for this and use matches
 jsonpath "$.fragment.created" isString
 jsonpath "$.fragment.updated" isString
-jsonpath "$.fragment.type" == "application/json; charset=utf-8"
+jsonpath "$.fragment.type" == "application/json"
 # 21 is the length of our fragment data: {"status": "testing"}
 jsonpath "$.fragment.size" == 21
 # Capture the Location URL into a variable named `url`
@@ -132,6 +132,122 @@ GET {{url}}
 user1@email.com:password1
 
 HTTP/1.1 200
+Content-Type: application/json
+[Asserts]
+body == "{\"status\": \"testing\"}"
+
+
+# application/json; charset=utf-8
+POST http://localhost:8080/v1/fragments
+Content-Type: application/json; charset=utf-8
+[BasicAuth]
+user1@email.com:password1
+# Body of the request
+{"status": "testing"}
+
+HTTP/1.1 201
+[Asserts]
+jsonpath "$.fragment.type" == "application/json; charset=utf-8"
+[Captures]
+url: header "Location"
+
+GET {{url}}
+[BasicAuth]
+user1@email.com:password1
+
+HTTP/1.1 200
 Content-Type: application/json; charset=utf-8
 [Asserts]
-body == "\"{\\\"status\\\": \\\"testing\\\"}\""
+body == "{\"status\": \"testing\"}"
+
+
+# text/markdown
+POST http://localhost:8080/v1/fragments
+Content-Type: text/markdown
+[BasicAuth]
+user1@email.com:password1
+`# This is a fragment!`
+
+HTTP/1.1 201
+[Asserts]
+jsonpath "$.fragment.type" == "text/markdown"
+[Captures]
+url: header "Location"
+
+GET {{url}}
+[BasicAuth]
+user1@email.com:password1
+
+HTTP/1.1 200
+Content-Type: text/markdown
+[Asserts]
+body == "# This is a fragment!"
+
+
+# text/markdown; charset=utf-8
+POST http://localhost:8080/v1/fragments
+Content-Type: text/markdown; charset=utf-8
+[BasicAuth]
+user1@email.com:password1
+`# This is a fragment!`
+
+HTTP/1.1 201
+[Asserts]
+jsonpath "$.fragment.type" == "text/markdown; charset=utf-8"
+[Captures]
+url: header "Location"
+
+GET {{url}}
+[BasicAuth]
+user1@email.com:password1
+
+HTTP/1.1 200
+Content-Type: text/markdown; charset=utf-8
+[Asserts]
+body == "# This is a fragment!"
+
+
+# text/html
+POST http://localhost:8080/v1/fragments
+Content-Type: text/html
+[BasicAuth]
+user1@email.com:password1
+`<h1>This is a fragment!</h1>`
+
+HTTP/1.1 201
+[Asserts]
+jsonpath "$.fragment.type" == "text/html"
+[Captures]
+url: header "Location"
+
+GET {{url}}
+[BasicAuth]
+user1@email.com:password1
+
+HTTP/1.1 200
+Content-Type: text/html
+[Asserts]
+body == "<h1>This is a fragment!</h1>"
+
+
+# text/html; charset=utf-8
+POST http://localhost:8080/v1/fragments
+Content-Type: text/html; charset=utf-8
+[BasicAuth]
+user1@email.com:password1
+`<h1>This is a fragment!</h1>`
+
+HTTP/1.1 201
+[Asserts]
+jsonpath "$.fragment.type" == "text/html; charset=utf-8"
+[Captures]
+url: header "Location"
+
+GET {{url}}
+[BasicAuth]
+user1@email.com:password1
+
+HTTP/1.1 200
+Content-Type: text/html; charset=utf-8
+[Asserts]
+body == "<h1>This is a fragment!</h1>"

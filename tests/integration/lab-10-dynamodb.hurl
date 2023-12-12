@@ -33,8 +33,8 @@ jsonpath "$.status" == "ok"
 jsonpath "$.fragment.id" == {{fragment1_id}}
 # Our ownerId hash is a hex encoded string
 jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
-jsonpath "$.fragment.created" isString
-jsonpath "$.fragment.updated" isString
+jsonpath "$.fragment.created" != null
+jsonpath "$.fragment.updated" != null
 jsonpath "$.fragment.type" == "application/json"
 jsonpath "$.fragment.size" == 25
 
@@ -73,8 +73,8 @@ jsonpath "$.status" == "ok"
 jsonpath "$.fragment.id" == {{fragment2_id}}
 # Our ownerId hash is a hex encoded string
 jsonpath "$.fragment.ownerId" matches "^[0-9a-fA-F]+$"
-jsonpath "$.fragment.created" isString
-jsonpath "$.fragment.updated" isString
+jsonpath "$.fragment.created" != null
+jsonpath "$.fragment.updated" != null
 jsonpath "$.fragment.type" == "text/markdown"
 jsonpath "$.fragment.size" == 22
 

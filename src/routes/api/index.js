@@ -18,17 +18,20 @@ const rawBody = () =>
     },
   });
 
-// GET /v1/fragments
-router.get('/fragments', require('./get'));
-
 // Use a raw body parser for POST, which will give a `Buffer` Object or `{}` at `req.body`
 router.post('/fragments', rawBody(), require('./post'));
+
+// GET /v1/fragments
+router.get('/fragments', require('./get'));
 
 // GET /v1/fragments/:id - get a fragment by id
 router.get('/fragments/:id', require('./byId'));
 
 // GET /v1/fragments/:id - get a fragment by id
 router.get('/fragments/:id/info', require('./info'));
+
+// PUT /v1/fragments/:id - update a fragment by id
+router.put('/fragments/:id', rawBody(), require('./update'));
 
 // DELETE /fragments/:id - delete a fragment by id
 router.delete('/fragments/:id', require('./delete'));

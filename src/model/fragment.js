@@ -21,53 +21,47 @@ const formats = [
   'text/markdown',
   'text/html',
   'application/json',
-
-  /* Formats are not supported yet:
   'image/png',
   'image/jpeg',
   'image/webp',
   'image/gif'
-
-  */
 ];
 
 class Fragment {
-  constructor({ id = randomUUID(), ownerId, created = new Date(), updated = new Date(), type, size = 0 }) {
-    if (ownerId == undefined || type == undefined) {
-      logger.error("Cannot create fragment without ownerId and/or type");
-      logger.debug(`given ownerId: ${ownerId}, type: ${type}`);
-      throw new Error('ownerId and type are required');
+  constructor({ id = randomUUID(), ownerId, created = new Date().toISOString(), updated = new Date().toISOString(), type, size = 0 }) {
+    // check if fragment is even valid
+    if (ownerId == undefined) {
+      logger.error("Cannot create fragment without ownerId");
+      logger.debug(`given ownerId: ${ownerId}`);
+      throw new Error('ownerId is required');
     }
-    else {
-      this.id = id;
-      this.ownerId = ownerId;
-      this.created = new Date(created);
-      this.updated = new Date(updated);
-      
-      if (Fragment.isSupportedType(type) == true)
-        this.type = type;
-      else {
-        logger.error("Cannot create fragment of unsupported type");
-        logger.debug(`given type: ${type}`);
-        throw new Error('invalid type');
-      }
-
-      if (typeof size == 'number') {
-        if (size >= 0)
-          this.size = size;
-        else {
-          logger.error("Cannot create fragment of negative size");
-          logger.debug(`given size: ${size}`);
-          throw new Error('size cannot be negative');
-        }
-      }
-
-      else {
-        logger.error("Cannot create fragment of non-number size");
-        logger.debug(`given size: ${size}`);
-        throw new Error('size must be a number');
-      }
+    if (type == undefined) {
+      logger.error("Cannot create fragment without type");
+      logger.debug(`given type: ${type}`);
+      throw new Error('type is required');
+    } else if (Fragment.isSupportedType(type) != true) {
+      logger.error("Cannot create fragment of unsupported type");
+      logger.debug(`given type: ${type}`);
+      throw new Error('invalid type');
     }
+    if (typeof size != 'number') {
+      logger.error("Cannot create fragment of non-number size");
+      logger.debug(`given size: ${size}`);
+      throw new Error('size must be a number');
+    } else if (size < 0) {
+      logger.error("Cannot create fragment of negative size");
+      logger.debug(`given size: ${size}`);
+      throw new Error('size cannot be negative');
+    }
+
+
+    //otherwise the fragment is valid and can be created
+    this.id = id;
+    this.ownerId = ownerId;
+    this.created = created;
+    this.updated = updated;
+    this.type = type;
+    this.size = size;
   }
 
   /**
@@ -93,8 +87,10 @@ class Fragment {
       logger.debug(`given ownerId: ${ownerId}, id: ${id}`);
       throw new Error('fragment not found');
     }
-    else
-      return readFragment(ownerId, id);
+    else {
+      logger.debug("Fragment was found for the given ownerId and id" + id)
+      return new Fragment(result);
+    }
   }
 
   /**
@@ -112,7 +108,7 @@ class Fragment {
    * @returns Promise<void>
    */
   save() {
-    this.updated = new Date();
+    this.updated = new Date().toISOString();
     return writeFragment(this);
   }
 
@@ -133,8 +129,8 @@ class Fragment {
     if (data == undefined)
       this.size = 0;
     else {
-      this.updated = new Date();
-      this.size = data.length;
+      this.updated = new Date().toISOString();
+      this.size = data.byteLength;
     }
   }
 
@@ -149,21 +145,9 @@ class Fragment {
       logger.debug(`given data: ${data}`);
       throw new Error('data is required');
     }
-    else {
-      this.updated = new Date();
-      this.size = data.length;
-      return writeFragmentData(this.ownerId, this.id, data);
-    }
-  }
-
-  /**
-   * Updates the fragment's dates to the string format
-   * @param none
-   * @returns nothing
-   */
-  async convertDatestoDateString() {
-    this.created = this.created.toDateString();
-    this.updated = this.updated.toDateString();
+    this.updated = new Date().toISOString();
+    this.size = data.byteLength;
+    return writeFragmentData(this.ownerId, this.id, data);
   }
 
   /**
@@ -199,18 +183,9 @@ class Fragment {
       formats = ['text/html', 'text/plain'];
     else if (this.mimeType == 'application/json')
       formats = ['application/json', 'text/plain'];
-
-    /* Formats are not supported yet:
-    else if (this.mimeType == 'image/png')
+    else if (this.mimeType == 'image/png' || this.mimeType == 'image/jpeg'
+      || this.mimeType == 'image/webp' || this.mimeType == 'image/gif')
       formats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-    else if (this.mimeType == 'image/jpeg')
-      formats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-    else if (this.mimeType == 'image/webp')
-      formats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-    else if (this.mimeType == 'image/gif')
-      formats = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-    
-    */
 
     return formats;
   }

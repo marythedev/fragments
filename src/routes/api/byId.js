@@ -1,8 +1,9 @@
-const { readFragment, readFragmentData } = require('../../model/data');
+const { Fragment } = require('../../model/fragment');
 const { createErrorResponse } = require('../../response');
 const logger = require('../../logger');
 var MarkdownIt = require('markdown-it');
 const md = new MarkdownIt();
+const sharp = require('sharp');
 
 // Gets a fragment based on its id
 module.exports = async (req, res) => {
@@ -11,129 +12,125 @@ module.exports = async (req, res) => {
     id = req.params.id.split('.')[0];
     var ext = req.params.id.split('.')[1];
   }
+  try {
+    const fragment = await Fragment.byId(req.user, id);
+    let fragmentData = await fragment.getData();
 
-  const fragmentMetadata = await readFragment(req.user, id);
+    if (ext) {
+      //determine extention type
+      let convertTo = undefined;
+      if (ext == 'txt')
+        convertTo = 'text/plain';
+      else if (ext == 'md')
+        convertTo = 'text/markdown';
+      else if (ext == 'html')
+        convertTo = 'text/html';
+      else if (ext == 'json')
+        convertTo = 'application/json';
+      else if (ext == 'png')
+        convertTo = 'image/png';
+      else if (ext == 'jpg')
+        convertTo = 'image/jpeg';
+      else if (ext == 'webp')
+        convertTo = 'image/webp';
+      else if (ext == 'gif')
+        convertTo = 'image/gif';
 
-  if (fragmentMetadata) {
-    let fragmentData = await readFragmentData(req.user, id);
-    res.setHeader('content-type', fragmentMetadata.type);
-    res.setHeader('Content-Length', fragmentMetadata.size);
+      if (fragment.formats.includes(convertTo)) {
+        const convertedData = await convert(res, fragment, fragmentData, convertTo);
 
-    if (fragmentMetadata.type.startsWith('text/plain')
-      || fragmentMetadata.type.startsWith('text/markdown')
-      || fragmentMetadata.type.startsWith('text/html')) {
-
-      if (ext) {
-        //fragmentData = Buffer.from(fragmentData);
-        //fragmentData = fragmentData.toString('utf8');
-        fragmentData = convert(res, fragmentMetadata, fragmentData, ext);
+        res.setHeader('Content-Type', convertTo);
+        res.setHeader('Content-Length', convertedData.length);
+        logger.info(`Retrieved fragment and converted with id ${id} to type ${convertTo} `);
+        res.status(200).send(convertedData);
+      } else {
+        logger.warn("Fragment could not be parsed by the raw body parser. Invalid Content-Type.");
+        res.status(415).json(createErrorResponse(415, "Content-Type is not supported"));
       }
-
+    }
+    else {
+      res.setHeader('Content-Type', fragment.type);
+      res.setHeader('Content-Length', fragment.size);
+      logger.info(`Retrieved fragment with id ${id} `);
       res.status(200).send(fragmentData);
+      return;
     }
-
-    else if (fragmentMetadata.type.startsWith('application/json')) {
-      fragmentData = Buffer.from(fragmentData);
-      fragmentData = fragmentData.toString();
-
-      if (ext)
-        fragmentData = convert(res, fragmentMetadata, fragmentData, ext);
-
-      res.status(200).json(fragmentData);
-    }
-
-  } else {
+  }
+  catch (err) {
     logger.warn(`Requested fragment does not exist in the memory.`);
     logger.debug(`Fragment not found with ID ${id}`);
-
+    logger.debug(err);
     res.status(404).json(createErrorResponse(404, `Fragment not found: ${id}`));
+    return;
   }
 };
 
 //convert fragment data to selected type if possible
-const convert = (res, metadata, data, ext) => {
+const convert = async (res, metadata, data, convertTo) => {
 
-  //determine extention type
-  let convertTo;
-  if (ext == 'txt')
-    convertTo = 'text/plain';
-  else if (ext == 'md')
-    convertTo = 'text/markdown';
-  else if (ext == 'html')
-    convertTo = 'text/html';
-  else if (ext == 'json')
-    convertTo = 'application/json';
-  else if (ext == 'png')
-    convertTo = 'image/png';
-  else if (ext == 'jpg')
-    convertTo = 'image/jpg';
-  else if (ext == 'jpeg')
-    convertTo = 'image/jpeg';
-  else if (ext == 'webp')
-    convertTo = 'image/webp';
-  else if (ext == 'gif')
-    convertTo = 'image/gif';
+  //determine if conversion possible and make a conversion
+  if (metadata.type == "text/markdown") {
 
-
-  //determine possible conversion
-  let possibleConversions;
-  if (metadata.type.startsWith('text/plain'))
-    possibleConversions = ['text/plain'];
-  else if (metadata.type.startsWith('text/markdown'))
-    possibleConversions = ['text/markdown', 'text/html', 'text/plain'];
-  else if (metadata.type.startsWith('text/html'))
-    possibleConversions = ['text/html', 'text/plain'];
-  else if (metadata.type.startsWith('application/json'))
-    possibleConversions = ['application/json', 'text/plain'];
-
-  /* Formats are not supported yet:
-  else if (metadata.type .startsWith('image/png'))
-    possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-  else if (metadata.type.startsWith('image/jpeg'))
-    possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-  else if (metadata.type.startsWith('image/webp'))
-    possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-  else if (metadata.type.startsWith('image/gif'))
-    possibleConversions = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];  
-  */
-
-  //determine if conversion is possible
-  let conversionIsPossible = false;
-  possibleConversions.map((conversion) => {
-    if (conversion == convertTo)
-      conversionIsPossible = true;
-  });
-
-  //convert if possible
-  if (conversionIsPossible) {
-
-    if (metadata.type == "text/markdown") {
-
-      if (convertTo == "text/html") {
-        data = data.toString('utf8');
-        data = md.render(data);
-      }
-
-      else if (convertTo == "text/plain") {
-        data = data.toString('utf8');
-        data = md.render(data);
-        data = data.replace(/<[^>]*>/g, '');
-      }
+    if (convertTo == "text/html") {
+      logger.debug(data)
+      data = data.toString('utf8');
+      data = md.render(data);
     }
 
-    else if (metadata.type == "text/html") {
-      if (convertTo == "text/plain") {
-        data = data.toString('utf8');
-        data = data.replace(/<[^>]*>/g, '');
-      }
+    else if (convertTo == "text/plain") {
+      data = data.toString('utf8');
+      data = md.render(data);
+      data = data.replace(/<[^>]*>/g, '');
     }
-
-    return data;
-  } else {
-    logger.warn(`Requested conversion is not possible.`);
-    logger.debug(`Fragment of type ${metadata.type} cannot be converted to ${convertTo}.`);
-
-    res.status(415).json(createErrorResponse(415, `Fragment cannot be converted to selected type.`));
   }
+
+  else if (metadata.type == "text/html") {
+    if (convertTo == "text/plain") {
+      data = data.toString('utf8');
+      data = data.replace(/<[^>]*>/g, '');
+    }
+  }
+
+  else if (metadata.type == "application/json") {
+    if (convertTo == "text/plain")
+      data = JSON.stringify(data);
+  }
+
+  else if (metadata.type == "image/png") {
+    if (convertTo == "image/jpeg")
+      data = await sharp(data).jpeg().toBuffer();
+    else if (convertTo == "image/webp")
+      data = await sharp(data).webp().toBuffer();
+    else if (convertTo == "image/gif")
+      data = await sharp(data).gif().toBuffer();
+  }
+
+  else if (metadata.type == "image/jpeg") {
+    if (convertTo == "image/png")
+      data = await sharp(data).png().toBuffer();
+    else if (convertTo == "image/webp")
+      data = await sharp(data).webp().toBuffer();
+    else if (convertTo == "image/gif")
+      data = await sharp(data).gif().toBuffer();
+  }
+
+  else if (metadata.type == "image/webp") {
+    if (convertTo == "image/png")
+      data = await sharp(data).png().toBuffer();
+    else if (convertTo == "image/jpeg")
+      data = await sharp(data).jpeg().toBuffer();
+    else if (convertTo == "image/gif")
+      data = await sharp(data).gif().toBuffer();
+  }
+
+  else if (metadata.type == "image/gif") {
+    if (convertTo == "image/png")
+      data = await sharp(data).png().toBuffer();
+    else if (convertTo == "image/jpeg")
+      data = await sharp(data).jpeg().toBuffer();
+    else if (convertTo == "image/webp")
+      data = await sharp(data).webp().toBuffer();
+  }
+  return data;
 
 }

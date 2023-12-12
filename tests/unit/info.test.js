@@ -11,9 +11,10 @@ describe('GET /v1/fragments:id/info', () => {
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/plain')
             .send("This is a fragment");
+        let body = JSON.parse(res.text);
 
         // Try to get the existing fragment's metadata without authorization
-        await request(app).get(`/v1/fragments${res.body.fragment.id}/info`).expect(401);
+        await request(app).get(`/v1/fragments${body.fragment.id}/info`).expect(401);
 
         // Try to get a non-existing fragment without authorization
         await request(app).get(`/v1/fragments123/info`).expect(401);
@@ -27,9 +28,10 @@ describe('GET /v1/fragments:id/info', () => {
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/plain')
             .send("This is a fragment");
+        let body = JSON.parse(res.text);
 
         // Try to get the existing fragment's metadata with incorrect credentials
-        await request(app).get(`/v1/fragments${res.body.fragment.id}/info`)
+        await request(app).get(`/v1/fragments${body.fragment.id}/info`)
             .auth('invalid@email.com', 'incorrect_password').expect(401);
 
         // Try to get a non-existing fragment with incorrect credentials
@@ -52,11 +54,12 @@ describe('GET /v1/fragments:id/info', () => {
             .auth('user1@email.com', 'password1')
             .set('Content-Type', 'text/plain')
             .send("This is a fragment");
+        let body = JSON.parse(res.text);
 
-        let fragment_by_id = await request(app).get(`/v1/fragments/${res.body.fragment.id}/info`)
+        let fragment_by_id = await request(app).get(`/v1/fragments/${body.fragment.id}/info`)
             .auth('user1@email.com', 'password1');
 
-        expect(fragment_by_id.text).toContain(res.body.fragment.type);
-        expect(fragment_by_id.text).toContain(res.body.fragment.size.toString());
+        expect(fragment_by_id.text).toContain(body.fragment.type);
+        expect(fragment_by_id.text).toContain(body.fragment.size.toString());
     });
 });

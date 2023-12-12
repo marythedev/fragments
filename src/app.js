@@ -24,6 +24,7 @@ app.use('/', require('./routes'));
 
 //Resources Not Found - 404 middleware
 app.use((req, res) => {
+  logger.warn("Page not found");
   res.status(404).json(createErrorResponse(404, 'Not Found'));
 });
 
