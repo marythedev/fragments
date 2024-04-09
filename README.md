@@ -1,6 +1,33 @@
 # Fragments back-end API
 
-Update `package.json` version with (set version instead of <version>, i.e. 1.0.0
+General Commands
+-
+
+Start server
+```
+npm start
+```
+
+Start the server in development mode (with nodemon and logger in debug mode)
+```
+npm run dev
+```
+
+Start the server in debug mode (with nodemon, logger in debug mode and launched debugger in VSCode (launch.json))
+```
+npm run debug
+```
+> Note: If the debugger doesn't start (doesn't stop at breakpoints, etc), the problem might be that [Auto Attach is not enabled and debugger doesn't get attached](https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_auto-attach):
+>  - In VSCode do `Ctrl+Shift+P`
+>  - Find and select `Debug: Toggle Auto Attach`
+>  - Select `Only With Flag` that will attach debugger when it sees "--inspect" flag like it's set up in `npm run debug` script.
+
+Command to make `local-aws-setup.sh` (`./scripts/local-aws-setup.sh`) executable
+```
+chmod +x ./scripts/local-aws-setup.sh
+```
+
+Update `package.json` version
 ```
 npm version <version> -m "Release v<version>"
 ```
@@ -12,173 +39,154 @@ git push origin master --tags
 
 <hr>
 
-
-Run `eslint` to spot any syntactic error
-```
-npm run lint
-```
-
-<hr>
-
-Run the following command to start the server (basically an alias for `node src/server.js`)
-```
-npm start
-```
-
-<hr>
-
-Run the following command to:
-- start the server in development mode (with nodemon that will automatically restart the server when there're any new changes in the source code folder "src/")
-- set logger to the debug mode (that will provide additional logs that might be useful for development) 
-```
-npm run dev
-```
-
-<hr>
-
-The following command will do everything that the previous command `npm run dev` does AND will also:
-- start debugger in VSCode (launch.json)
-```
-npm run debug
-```
-If the debugger doesn't start (doesn't stop at breakpoints, etc), the problem might be that [Auto Attach is not enabled and debugger doesn't get attached](https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_auto-attach):
-  - In VSCode do `Ctrl+Shift+P`
-  - Find and select `Debug: Toggle Auto Attach`
-  - Select `Only With Flag` that will attach debugger when it sees "--inspect" flag like it's set up in `npm run debug` script.
-
-<hr>
-
-Get Server Responses
+Get Server Responses in Terminal using Curl
 -
-Browser: [http://localhost:8080](http://localhost:8080)
 
-Terminal (the last one will provide a more readable response):
+Simple fetch
 ```
 curl.exe http://localhost:8080
 ```
+
+Simple fetch (but more readable response)
 ```
 curl.exe -s localhost:8080 | jq
 ```
 
-Fetch for users' fragments
+Fetch for user's fragments
 ```
-curl.exe -i -u user1@email.com:password1 http://localhost:8080/v1/fragments
-curl.exe -i -u user2@email.com:password2 http://localhost:8080/v1/fragments
-```
-Add new fragments for users (example)
-```
-curl.exe -i -X POST -u user1@email.com:password1  -H "Content-Type: text/plain" -d "This is a fragment" http://localhost:8080/v1/fragments
-curl.exe -i -X POST -u user2@email.com:password2  -H "Content-Type: text/plain" -d "This is a fragment" http://localhost:8080/v1/fragments
+curl.exe -i -u <user@email.com>:<password> http://localhost:8080/v1/fragments
 ```
 
+Add new fragments for user
+```
+curl.exe -i -X POST -u <user@email.com>:<password>  -H "Content-Type: <text/plain>" -d "<This is a fragment>" http://localhost:8080/v1/fragments
+```
+
+<hr>
+
+Docker
+-
+
+**Authentication**
+```
+docker login --username <username> --password "<password>"
+```
+
+<br>
+
+**Build docker image**
+```
+docker build -t fragments:latest .
+```
+  > - `-t fragments:latest`, is a [tag](https://docs.docker.com/engine/reference/commandline/build/#tag) with name (fragments) and version (latest)
+
+<br>
+
+**View created image**
+```
+docker image ls fragments
+```
+
+<br>
+
+**Run docker container**
+```
+docker run --rm --name <fragments> --env-file <.env> -p 8080:8080 <fragments:latest>
+```
+  > - `<fragments>` is container name
+  > - `--env-file <.env>` adds environmental variables from local .env file
+  > - `-p 8080:8080` binds local 8080 port to docker machine's 8080 port (left 8080 - host/local machine; right 8080 - container)
+  > - `<fragments:latest>` is image name
+
+  More options:
+  > - To have signals from tini, add `--init` tag after `docker run` NOTE: `--init` won't work on alpine images
+  >   - i.e. `docker run --init --rm --name <fragments> --env-file <env.jest> -p 8080:8080 <fragments:latest>`
+  > - To detach container (daemon, run in background), add `-d` flag
+  >   - i.e. `docker run --rm --name <fragments> --env-file <env.jest> -p 8080:8080 -d <fragments:latest>`
+  >   - it will detach container and as output will print the id of that container
+  >   - to view logs for the detached container run `docker logs -f <detached container id>` (`-f` is for following the logs, can be run without)
+  > - To overwrite environmental variables values, add `-e` tag with key=value
+  >   - i.e. `docker run --rm --name <fragments> --env-file <env.jest> -e LOG_LEVEL=debug -p 8080:8080 <fragments:latest>`
+  >   - it will discard `LOG_LEVEL` value in env.jest and set it's value to `debug`
+
+<br>
+
+**Docker Compose**
+1. Run docker compose: `docker compose up`
+  > - use `-d` tag to run service(s) in the background (i.e. `docker compose up -d`)
+  > - use `down` to stop service(s) `docker compose down`
+2. Re-build image (if changes are made to source code), use  `--build` flag to force a rebuild
+  > - `docker compose up --build`
+  > - `docker compose up --build -d` (re-build in background)
+
+<br>
+
+**Push to DockerHub**
+1. Create a Tag `docker tag <fragments>:<latest> <mdmytrenko/fragments>:<latest>`
+2. Make a push `docker push <mdmytrenko/fragments>`
+> - `<mdmytrenko/fragments>` image name
+> - if tag is omitted `:latest` tag is used by default as `mdmytrenko/fragments:latest`
+> - to push all existing tags add `--all-tags` tag, run `docker push --all-tags mdmytrenko/fragments`
+
+<br>
+
+**Remove image (locally)**
+```
+docker rmi <image-name>
+```
+
+<hr>
 
 EC2 Environment
 -
-CentOS
-- Update system's packages with `sudo yum update`
-- Install package (git as the example) `sudo yum install git -y`
-- Check package version (git as the example) `git --version`
-- Switch between node versions `nvm use --lts` or `nvm use 16`(version 16 is installed) or  `nvm use 14`(version 14 is installed)
+**Start & Stop EC2 instances from AWS command line**
+- Start: `aws ec2 start-instances --instance-ids <instance-id>`
+- Stop: `aws ec2 stop-instances --instance-ids <instance-id>`
 
-Connect with PuTTY
+**Connect with PuTTY**
 1. Session -> Host Name set to `Public IPv4 address` (something like 54.165.10.190), check port to be `22`
 2. Connection -> Seconds between keepalives set to `30`
 3. Connection -> SSH -> Auth -> Credentials -> Private key file for authentication select file `dps955-fragments-key-pair.ppk` (in fragments/.ssh folder)
 4. Login as `ec2-user`
 
-Copy source code from local machine to EC2
-1. Run `npm pack`
-2. Run `pscp -v -i .ssh/dps955-fragments-key-pair.ppk fragments-0.0.1.tgz ec2-user@ec2-54-165-10-190.compute-1.amazonaws.com:`
+**Setup CentOS with necessary tools**
+1. Update system's packages with `sudo yum update`
+2. Install package (git as the example) `sudo yum install git -y`
+3. Check package version (git as the example) `git --version`
+4. Switch between node versions `nvm use --lts` or `nvm use 16`(version 16 is installed) or  `nvm use 14`(version 14 is installed)
 
-   `-v` for verbose (to give detailed explanation, especially if something goes wrong)
-   
-   `-i .ssh/dps955-fragments-key-pair.ppk` key-pairs for connection
+**Copy source code from local machine to EC2**
+1. On Local Machine: Run `npm pack`
+2. On Local Machine: Run
+   ```
+   pscp -v -i .ssh/<key-pair-file.ppk> <fragments-1.0.0.tgz> ec2-user@<ec2-54-165-10-190.compute-1.amazonaws.com>:
+   ```
+   > - `-v` for verbose (to give detailed explanation, especially if something goes wrong)
+   > - `-i .ssh/<key-pair-file.ppk>` key-pairs for connection
+   > - `<fragments-1.0.0.tgz>` update with newer version if applicable
+   > - `ec2-user` username (without it automatically guesses username & refuses key)
+   > - `<ec2-54-165-10-190.compute-1.amazonaws.com>` example of remote computer address (check Public IPv4 DNS)
+   > - `-P 22` if some [errors](https://stackoverflow.com/questions/62817854/ssh-init-network-error-cannot-assign-requested-address) still arise add this flag to force it connect on port 22
+4. On Remote Machine: Run `tar -xvzf <fragments-0.0.1.tgz>` to unpack
+5. On Remote Machine: Run `cd package` to get into unpacked folder
+6. On Remote Machine: Run `nvm use 14` prior to npm installing for fragments-ui, otherwise it might get frozen. 
 
-   `fragments-0.0.1.tgz` update with newer version if applicable
-   
-   `ec2-user` username (without it automatically guesses username & refuses key)
-
-   `ec2-54-165-10-190.compute-1.amazonaws.com` example of remote computer address (check Public IPv4 DNS)
-
-   `-P 22` if some [errors](https://stackoverflow.com/questions/62817854/ssh-init-network-error-cannot-assign-requested-address) still arise add this flag to force it connect on port 22
-3. Run `tar -xvzf fragments-0.0.1.tgz` on the remote machine
-4. Run `cd package` on the remote machine
-5. Run `nvm use 14` prior to npm installing for fragments-ui, otherwise it gets frozen. 
-
-Start & Stop EC2 instances from AWS command line:
-- Start with `aws ec2 start-instances --instance-ids {instance-id}`
-- Stop with `aws ec2 stop-instances --instance-ids {instance-id}`
-
-
-
-
-
-Docker
--
-### Authenticate
-```
-docker login --username <username> --password "<password>"
-```
-
-##### Push to Docker Hub
-Tag `docker tag fragments:latest mdmytrenko/fragments:latest`
-
-Push `docker push mdmytrenko/fragments`
-   - `mdmytrenko/fragments` is image name
-   - if tag is omitted `:latest` tag is used by default as `mdmytrenko/fragments:latest`
-   - to push all tags on `mdmytrenko/fragments` run `docker push --all-tags mdmytrenko/fragments`
-
-##### Create and run image
-1. Run `docker build -t fragments:latest .` to build docker image
-    - -t fragments:latest, is a [tag](https://docs.docker.com/engine/reference/commandline/build/#tag) with name (fragments) and version (latest)
-2. View created image with `docker image ls fragments`
-3. Run `docker run --rm --name fragments --env-file .env -p 8080:8080 fragments:latest`
-    - `--env-file .env` adds environmental variables from local .env file
-    - `-p 8080:8080` binds local 8080 port to docker machine's 8080 port (8080 on the host/local machine (left-hand) and 8080 in the container (right-hand))
-    - in order to have signals from tini that is built into docker, run `docker run --init --rm --name fragments --env-file .env -p 8080:8080 fragments:latest`
-      - NOTE: `--init` won't work on alpine images
-    - `fragments` is container name
-    - `fragments:latest` is image name
-
-##### Overwrite environmental variables 
-- add `-e` tag with key=value
-- for example, `docker run --rm --name fragments --env-file env.jest -e LOG_LEVEL=debug -p 8080:8080 fragments:latest`
-
-##### Detach container (daemon, run in background)
-- add `-d` flag (which will print the id of the detached container)
-- for example, `docker run --rm --name fragments --env-file env.jest -e LOG_LEVEL=debug -p 8080:8080 -d fragments:latest`
-- run `docker logs -f <detached container id>` (`-f` flag is for following the logs, can be run without it)
-
-##### Docker Compose
-- run `docker compose up` to run docker compose
-  - stop with `Ctrl+C`
-- OR run service(s) in the background using -d, and use down to stop them:
-  - `docker compose up -d`
-  - `docker compose down`
-- if changes are made to source code and image need to be rebuilt, use the `--build` flag to force a rebuild
-  - `docker compose up --build`, `docker compose up --build -d` (in background)
-- command to make `local-aws-setup.sh` executable
-  - `chmod +x ./scripts/local-aws-setup.sh`
-- execute script by running
-  - `./scripts/local-aws-setup.sh`
-
-##### Remove image (locally)
-```
-docker rmi hello-world
-```
-
-
-### Docker on EC2
+**Docker on EC2**
 1. Install Docker `sudo yum install -y docker` (might need to reload the ssh session `exit`)
 2. Start Docker `sudo dockerd`
 3. Pack, transfer & unpack codebase (refer to commands in the sections above)
 4. Run `npm install` (will generate package-lock.json)
-5. Build image `sudo docker build -t fragments:latest .`
+5. Build image `sudo docker build -t <fragments>:<latest> .`
 6. Run other commands needed to run docker container (add `sudo` for root rights)
 
-##### Pull Docker Images from Amazon Elastic Container Registry
-Login the docker client with your Amazon Elastic Container Registry
-On the EC2 instance run:
+<hr>
+
+Amazon Elastic Container Registry
+--
+
+**Pull Docker Images from ECR**
+
+1. On the EC2 instance login the docker client:
 ```
 # Define Environment Variables for all AWS Credentials.  Use the Learner Lab AWS CLI Credentials:
 $ export AWS_ACCESS_KEY_ID=<learner-lab-access-key-id>
@@ -190,11 +198,13 @@ $ export AWS_DEFAULT_REGION=us-east-1
 # Make sure docker is running! (sudo dockerd)
 $ sudo docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 390240750368.dkr.ecr.us-east-1.amazonaws.com
 ```
-Pull Image
+
+2. Pull Image
 ```
 sudo docker pull 390240750368.dkr.ecr.us-east-1.amazonaws.com/fragments:vtag
 ```
-Run Pulled Image
+
+3. Run Pulled Image
 ```
 sudo docker run --rm --name fragments --env-file .env -p 8080:8080 390240750368.dkr.ecr.us-east-1.amazonaws.com/fragments:vtag
 ```
