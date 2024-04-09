@@ -1,19 +1,39 @@
-# Fragments back-end API
+# Fragments API Documentation
 
-General Commands
+Overview
+-
+Development Setup Commands
+- [General Commands](#general-commands)
+- [Docker](#docker)
+- [EC2 Environment](#ec2-environment)
+- [Amazon Elastic Container Registry](#amazon-elastic-container-registry)
+
+Testing Endpoints
+- [Get Server Responses in Terminal using Curl](#get-server-responses-in-terminal-using-curl)
+
+
+
+<br>
+
+
+
+
+Development Setup Commands
 -
 
-Start server
+### General Commands
+
+**Start server**
 ```
 npm start
 ```
 
-Start the server in development mode (with nodemon and logger in debug mode)
+**Start the server in development mode** (with nodemon and logger in debug mode)
 ```
 npm run dev
 ```
 
-Start the server in debug mode (with nodemon, logger in debug mode and launched debugger in VSCode (launch.json))
+**Start the server in debug mode** (with nodemon, logger in debug mode and launched debugger in VSCode (launch.json))
 ```
 npm run debug
 ```
@@ -22,50 +42,24 @@ npm run debug
 >  - Find and select `Debug: Toggle Auto Attach`
 >  - Select `Only With Flag` that will attach debugger when it sees "--inspect" flag like it's set up in `npm run debug` script.
 
-Command to make `local-aws-setup.sh` (`./scripts/local-aws-setup.sh`) executable
+**Command to make `local-aws-setup.sh` (`./scripts/local-aws-setup.sh`) executable**
 ```
 chmod +x ./scripts/local-aws-setup.sh
 ```
 
-Update `package.json` version
+**Update `package.json` version**
 ```
 npm version <version> -m "Release v<version>"
 ```
 
-Push tag
+**Push tag**
 ```
 git push origin master --tags
 ```
 
 <hr>
 
-Get Server Responses in Terminal using Curl
--
-
-Simple fetch
-```
-curl.exe http://localhost:8080
-```
-
-Simple fetch (but more readable response)
-```
-curl.exe -s localhost:8080 | jq
-```
-
-Fetch for user's fragments
-```
-curl.exe -i -u <user@email.com>:<password> http://localhost:8080/v1/fragments
-```
-
-Add new fragments for user
-```
-curl.exe -i -X POST -u <user@email.com>:<password>  -H "Content-Type: <text/plain>" -d "<This is a fragment>" http://localhost:8080/v1/fragments
-```
-
-<hr>
-
-Docker
--
+### Docker
 
 **Authentication**
 ```
@@ -137,8 +131,8 @@ docker rmi <image-name>
 
 <hr>
 
-EC2 Environment
--
+### EC2 Environment
+
 **Start & Stop EC2 instances from AWS command line**
 - Start: `aws ec2 start-instances --instance-ids <instance-id>`
 - Stop: `aws ec2 stop-instances --instance-ids <instance-id>`
@@ -181,8 +175,7 @@ EC2 Environment
 
 <hr>
 
-Amazon Elastic Container Registry
---
+### Amazon Elastic Container Registry
 
 **Pull Docker Images from ECR**
 
@@ -207,4 +200,36 @@ sudo docker pull 390240750368.dkr.ecr.us-east-1.amazonaws.com/fragments:vtag
 3. Run Pulled Image
 ```
 sudo docker run --rm --name fragments --env-file .env -p 8080:8080 390240750368.dkr.ecr.us-east-1.amazonaws.com/fragments:vtag
+```
+
+
+
+<br>
+
+
+
+
+Testing Endpoints
+-
+
+### Get Server Responses in Terminal using Curl
+
+**Simple fetch**
+```
+curl.exe http://localhost:8080
+```
+
+Simple fetch (but more readable response)
+```
+curl.exe -s localhost:8080 | jq
+```
+
+**Fetch for user's fragments**
+```
+curl.exe -i -u <user@email.com>:<password> http://localhost:8080/v1/fragments
+```
+
+**Add new fragments for user**
+```
+curl.exe -i -X POST -u <user@email.com>:<password>  -H "Content-Type: <text/plain>" -d "<This is a fragment>" http://localhost:8080/v1/fragments
 ```
