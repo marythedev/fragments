@@ -1,15 +1,24 @@
-# Fragments API Documentation
+# Fragments REST API Documentation
+
+HTTP REST API to create, view, update, and delete small data "fragments" like text and images. System stores fragment data and metadata associated with it like its size, type, and creation/modification dates.
+All operations require proper authorization (account), as fragments are specific to the user.
+Additionally, it gives options to convert fragment data between different formats. For example, a Markdown fragment can be retrievable as HTML, a JPEG as a PNG, etc.
+System is fully tested and deployed to AWS and is available scaling in order to store massive amounts of data.
 
 Overview
 -
-Development Setup Commands
+**Development Setup Commands**
 - [General Commands](#general-commands)
 - [Docker](#docker)
 - [EC2 Environment](#ec2-environment)
 - [Amazon Elastic Container Registry](#amazon-elastic-container-registry)
 
-Testing Endpoints
+**Testing Endpoints**
+- [Available Routes](#available-routes)
+- [Supported file types](#supported-file-types)
 - [Get Server Responses in Terminal using Curl](#get-server-responses-in-terminal-using-curl)
+- [Expected Server Responses](#expected-server-responses)
+
 
 
 
@@ -204,13 +213,54 @@ sudo docker run --rm --name fragments --env-file .env -p 8080:8080 390240750368.
 
 
 
+
 <br>
+
 
 
 
 
 Testing Endpoints
 -
+
+### Available Routes
+
+| Route | Method | Authentication | What it does | Query Options |
+| ----- | ------ | -------------- | ------------ |  ------- |
+| GET | `/`  | not required | Server health check | |
+| GET | `/v1/fragments`  | required | Get all user's fragments | setting `?expand=1` will return fragments in the expanded form with metadata |
+| GET | `/v1/fragments/:id`  | required | Get specific user fragment |  |
+| GET | `/v1/fragments/:id/info`  | required | Get specific user fragment in the expanded form with metadata |  |
+| POST | `/v1/fragments`  | required | Create fragment for the user |  |
+| PUT | `/v1/fragments/:id`  | required | Update specific user fragment |  |
+| DELETE | `/v1/fragments/:id`  | required | Delete specific user fragment |  |
+
+
+### Supported file types
+| Name       | Type               | Extension |
+| ---------- | ------------------ | --------- |
+| Plain Text | `text/plain`       | `.txt`    |
+| Markdown   | `text/markdown`    | `.md`     |
+| HTML       | `text/html`        | `.html`   |
+| JSON       | `application/json` | `.json`   |
+| PNG Image  | `image/png`        | `.png`    |
+| JPEG Image | `image/jpeg`       | `.jpg`    |
+| WebP Image | `image/webp`       | `.webp`   |
+| GIF Image  | `image/gif`        | `.gif`    |
+
+**Supported coversions between types**
+| Type               | Supported Conversion Extensions |
+| ------------------ | ------------------------------- |
+| `text/plain`       | `.txt`                          |
+| `text/markdown`    | `.md`, `.html`, `.txt`          |
+| `text/html`        | `.html`, `.txt`                 |
+| `application/json` | `.json`, `.txt`                 |
+| `image/png`        | `.png`, `.jpg`, `.webp`, `.gif` |
+| `image/jpeg`       | `.png`, `.jpg`, `.webp`, `.gif` |
+| `image/webp`       | `.png`, `.jpg`, `.webp`, `.gif` |
+| `image/gif`        | `.png`, `.jpg`, `.webp`, `.gif` |
+
+<hr>
 
 ### Get Server Responses in Terminal using Curl
 
@@ -219,6 +269,12 @@ Testing Endpoints
 curl.exe http://localhost:8080
 ```
 
+Expected Output
+```
+{"status":"ok","author":"<author>","githubUrl":"<github-repo>","version":"<package.json-version>", "hostname": "<hostname>"}
+```
+
+
 Simple fetch (but more readable response)
 ```
 curl.exe -s localhost:8080 | jq
@@ -226,10 +282,60 @@ curl.exe -s localhost:8080 | jq
 
 **Fetch for user's fragments**
 ```
-curl.exe -i -u <user@email.com>:<password> http://localhost:8080/v1/fragments
+curl.exe -i -u user1@email.com:password1 http://localhost:8080/v1/fragments
 ```
 
 **Add new fragments for user**
 ```
 curl.exe -i -X POST -u <user@email.com>:<password>  -H "Content-Type: <text/plain>" -d "<This is a fragment>" http://localhost:8080/v1/fragments
+```
+
+<hr>
+
+### Expected Server Responses
+
+**Expected Health Check Route Response**
+```
+{
+  "status": "ok",
+  "author": "<author>",
+  "githubUrl": "<github-repo>",
+  "version": "<package.json-version>",
+  "hostname": "<hostname>"
+}
+```
+
+**Successful Response**
+
+Basic Successful Response
+```
+{
+  "status": "ok"
+}
+```
+
+Successful Response that returns data
+```
+{
+  "status": "ok",
+  "fragment": {
+    "id": "<fragment-id>",
+    "ownerId": "<owner-id>",
+    "created": "<date-of-creation>",
+    "updated": "<date-of-modification>",
+    "type": "<fragment-type>",
+    "size": <fragment-size>
+  }
+}
+```
+
+**Error Response**
+```
+{
+  "status": "error",
+  "error": {
+    "code": <error-status-code>,
+    "message": "<error-message>"
+  }
+}
 ```
